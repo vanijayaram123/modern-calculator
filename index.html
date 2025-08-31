@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Butterfly Calculator — Frontend Only</title>
+  <style>
+    :root{--bg:#f7f3ff;--card:#ffffffdd;--accent:#9b7cff;--muted:#6b5b9a}
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial}
+    body{margin:0;min-height:100vh;background:linear-gradient(180deg,var(--bg),#fff);display:flex;align-items:center;justify-content:center;padding:40px}
+
+    /* floating emoji butterflies */
+    .sky{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+    .butter{position:absolute;font-size:28px;opacity:.9;animation:float 12s linear infinite}
+    .butter.b1{left:5%;animation-duration:14s;transform-origin:center}
+    .butter.b2{left:20%;animation-duration:10s}
+    .butter.b3{left:70%;animation-duration:18s}
+    .butter.b4{left:85%;animation-duration:13s}
+    @keyframes float{0%{transform:translateY(110vh) rotate(0deg)}50%{transform:translateY(20vh) rotate(30deg)}100%{transform:translateY(-40vh) rotate(60deg)}}
+
+    /* main container */
+    .wrap{width:980px;max-width:96%;display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start}
+    .card{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(99,63,255,0.08);backdrop-filter:blur(6px)}
+
+    /* left - calculator */
+    .calc{padding:18px;border-radius:14px}
+    .title{display:flex;align-items:center;gap:12px}
+    .logo{font-size:30px}
+    .h1{font-weight:700;font-size:20px;color:var(--muted)}
+
+    .screen{background:linear-gradient(180deg,#fff, #fbf8ff);border-radius:12px;padding:18px;margin-top:14px;box-shadow:inset 0 -6px 18px rgba(0,0,0,0.03)}
+    .display{font-size:28px;text-align:right;padding:6px 8px;min-height:40px;color:#2b1e4b;word-wrap:break-word}
+    .sub{font-size:12px;color:#7b6b9b;text-align:right}
+
+    .pad{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+    .btn{background:linear-gradient(180deg,#fff,#f7f2ff);border-radius:12px;padding:16px;font-weight:600;font-size:18px;border:0;cursor:pointer;box-shadow:0 6px 14px rgba(140,110,255,0.12);transition:transform .12s ease,box-shadow .12s}
+    .btn:active{transform:translateY(2px)}
+    .accent{background:linear-gradient(180deg,var(--accent),#6f47ff);color:white;box-shadow:0 12px 30px rgba(107,71,255,0.22)}
+    .op{background:linear-gradient(180deg,#fff6fb,#fff);color:var(--muted)}
+    .emoji{font-size:16px;margin-right:8px}
+
+    /* right - history */
+    .history{display:flex;flex-direction:column;gap:12px;height:100%}
+    .hist-head{display:flex;align-items:center;justify-content:space-between}
+    .hist-list{overflow:auto;max-height:520px;padding:8px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfafd)}
+    .hist-item{padding:8px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+    .expr{font-size:13px;color:#6b5b9a}
+    .res{font-weight:700}
+    .controls{display:flex;gap:8px}
+    .small{padding:8px 10px;border-radius:10px;font-weight:600;font-size:13px}
+
+    /* responsive */
+    @media (max-width:880px){.wrap{grid-template-columns:1fr}.history{order:2}}
+
+    /* flower button special */
+    .flower{position:relative;overflow:hidden}
+    .flower:after{content:'🌸';position:absolute;left:8px;top:8px;opacity:.25;font-size:20px}
+
+    /* soft floating butterflies near keypad */
+    .butterfly-icon{position:absolute;right:18px;top:8px;font-size:34px;opacity:.14}
+  </style>
+</head>
+<body>
+  <div class="sky" aria-hidden>
+    <div class="butter b1">🦋</div>
+    <div class="butter b2">🦋</div>
+    <div class="butter b3">🌼</div>
+    <div class="butter b4">✨</div>
+  </div>
+
+  <div class="wrap">
+    <div class="card calc">
+      <div class="title">
+        <div class="logo">🦋</div>
+        <div class="h1">Butterfly Calculator — frontend only</div>
+        <div class="butterfly-icon">🌸</div>
+      </div>
+
+      <div class="screen" id="screen">
+        <div class="sub" id="expression">0</div>
+        <div class="display" id="display">0</div>
+      </div>
+
+      <div class="pad" id="pad">
+        <button class="btn op" data-action="clear">C <span class="emoji">🧽</span></button>
+        <button class="btn op" data-action="back">⌫ <span class="emoji">↩️</span></button>
+        <button class="btn op" data-value="%">% <span class="emoji">📏</span></button>
+        <button class="btn op" data-value="÷">÷ <span class="emoji">➗</span></button>
+
+        <button class="btn" data-value="7">7</button>
+        <button class="btn" data-value="8">8</button>
+        <button class="btn" data-value="9">9</button>
+        <button class="btn op" data-value="×">× <span class="emoji">✖️</span></button>
+
+        <button class="btn" data-value="4">4</button>
+        <button class="btn" data-value="5">5</button>
+        <button class="btn" data-value="6">6</button>
+        <button class="btn op" data-value="-">- <span class="emoji">➖</span></button>
+
+        <button class="btn" data-value="1">1</button>
+        <button class="btn" data-value="2">2</button>
+        <button class="btn" data-value="3">3</button>
+        <button class="btn op" data-value="+">+ <span class="emoji">➕</span></button>
+
+        <button class="btn flower" data-value="0">0</button>
+        <button class="btn" data-value=".">. <span class="emoji">✨</span></button>
+        <button class="btn accent" data-action="sum">Σ <span class="emoji">🔢</span></button>
+        <button class="btn accent" data-action="equals">= <span class="emoji">🌟</span></button>
+      </div>
+
+    </div>
+
+    <div class="card history">
+      <div class="hist-head">
+        <div style="font-weight:700;color:var(--muted)">History</div>
+        <div class="controls">
+          <button class="small" id="export">Export</button>
+          <button class="small" id="clearHistory">Clear</button>
+        </div>
+      </div>
+      <div class="hist-list" id="histList" aria-live="polite"></div>
+      <div style="margin-top:10px;font-size:13px;color:#6b5b9a">Tips: tap numbers or use keyboard. 'Σ' sums all numeric results in history.</div>
+    </div>
+  </div>
+
+  <script>
+    // Calculator logic
+    const displayEl = document.getElementById('display');
+    const exprEl = document.getElementById('expression');
+    const pad = document.getElementById('pad');
+    const histList = document.getElementById('histList');
+    const STORAGE_KEY = 'butterflyCalcHistory_v1';
+
+    let expr = '';
+    let lastResult = null;
+
+    function render() {
+      displayEl.textContent = expr || '0';
+      exprEl.textContent = expr ? expr : '0';
+    }
+
+    function append(value) {
+      expr = (expr === '0' && value !== '.' ? value : expr + value);
+      render();
+    }
+
+    function backspace() {
+      expr = expr.slice(0, -1);
+      render();
+    }
+
+    function clearAll() {
+      expr = '';
+      render();
+    }
+
+    function safeEval(input) {
+      const sanitized = input.replace(/×/g, '*').replace(/÷/g, '/').replace(/[^0-9+\-*/().% ]/g, '');
+      try {
+        const fn = new Function('return (' + sanitized + ')');
+        return fn();
+      } catch (e) {
+        return NaN;
+      }
+    }
+
+    function pushHistory(expression, result) {
+      const cur = loadHistory();
+      cur.unshift({expression, result: (isFinite(result) ? String(result) : 'Error')});
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cur.slice(0,200)));
+      renderHistory();
+    }
+
+    function loadHistory() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+      catch(e){ return []; }
+    }
+
+    function renderHistory(){
+      const items = loadHistory();
+      histList.innerHTML = items.length ? items.map(it => `\n        <div class="hist-item">\n          <div>\n            <div class="expr">${escapeHtml(it.expression)}</div>\n            <div class="res">${escapeHtml(it.result)}</div>\n          </div>\n        </div>`).join('') : '<div style="padding:12px;color:#8b77a9">No history yet — do a calculation!</div>';
+    }
+
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function doEquals() {
+      if (!expr) return;
+      const result = safeEval(expr);
+      if (!isFinite(result)) {
+        displayEl.textContent = 'Error';
+        pushHistory(expr, 'Error');
+        expr = '';
+        return;
+      }
+      lastResult = result;
+      displayEl.textContent = result;
+      pushHistory(expr, result);
+      expr = String(result);
+    }
+
+    function doSumHistory(){
+      const items = loadHistory();
+      const values = items.map(it => Number(it.result)).filter(v => isFinite(v));
+      if (!values.length) {
+        displayEl.textContent = '0';
+        expr = '';
+        return;
+      }
+      const total = values.reduce((a,b)=>a+b,0);
+      pushHistory('SUM(history)', total);
+      expr = String(total);
+      render();
+    }
+
+    pad.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const val = btn.dataset.value;
+      const action = btn.dataset.action;
+      if (val) append(val);
+      if (action) {
+        if (action === 'clear') clearAll();
+        if (action === 'back') backspace();
+        if (action === 'equals') doEquals();
+        if (action === 'sum') doSumHistory();
+      }
+    });
+
+    document.getElementById('clearHistory').addEventListener('click', ()=>{ localStorage.removeItem(STORAGE_KEY); renderHistory(); });
+    document.getElementById('export').addEventListener('click', ()=>{
+      const items = loadHistory();
+      const blob = new Blob([JSON.stringify(items, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'butterfly-calc-history.json'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // keyboard support
+    window.addEventListener('keydown', (e)=>{
+      if ((/\d/).test(e.key) || ['+','-','*','/','.','%','(',')'].includes(e.key)) {
+        e.preventDefault();
+        append(e.key);
+      }
+      if (e.key === 'Enter') doEquals();
+      if (e.key === 'Backspace') backspace();
+      if (e.key === 'Escape') clearAll();
+    });
+
+    // init
+    renderHistory();
+    render();
+  </script>
+</body>
+</html>
